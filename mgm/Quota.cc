@@ -1670,7 +1670,7 @@ Quota::RmQuotaTypeForId(const std::string& qpath, long id, Quota::IdT id_type,
     oss_config << "uid=";
 
     if (quota_type == Type::kVolume) {
-      quota_tag = SpaceQuota::kUserBytesTarget;
+      quota_tag = SpaceQuota::kUserLogicalBytesTarget;
     } else {
       quota_tag = SpaceQuota::kUserFilesTarget;
     }
@@ -1678,7 +1678,7 @@ Quota::RmQuotaTypeForId(const std::string& qpath, long id, Quota::IdT id_type,
     oss_config << "gid=";
 
     if (quota_type == Type::kVolume) {
-      quota_tag = SpaceQuota::kGroupBytesTarget;
+      quota_tag = SpaceQuota::kGroupLogicalBytesTarget;
     } else {
       quota_tag = SpaceQuota::kGroupFilesTarget;
     }
