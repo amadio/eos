@@ -339,6 +339,20 @@ SpaceQuota::UpdateTargetSums()
       break;
     }
   }
+
+  // If no logical quotas have been defined yet, use RAW quota and factor
+  if (mMapIdQuota[Index(kAllUserLogicalBytesTarget, 0)] == 0 &&mMapIdQuota[Index(kAllUserBytesTarget, 0)] > 0)
+    mMapIdQuota[Index(kAllUserLogicalBytesTarget, 0)] = mMapIdQuota[Index(kAllUserBytesTarget, 0)] / mLayoutSizeFactor;
+
+  if (mMapIdQuota[Index(kAllGroupLogicalBytesTarget, 0)] == 0 &&mMapIdQuota[Index(kAllGroupBytesTarget, 0)] > 0)
+    mMapIdQuota[Index(kAllGroupLogicalBytesTarget, 0)] = mMapIdQuota[Index(kAllGroupBytesTarget, 0)] / mLayoutSizeFactor;
+
+  // If no RAW quotas have been defined yet, use logical quota and factor
+  if (mMapIdQuota[Index(kAllUserBytesTarget, 0)] == 0 &&mMapIdQuota[Index(kAllUserLogicalBytesTarget, 0)] > 0)
+    mMapIdQuota[Index(kAllUserBytesTarget, 0)] = mMapIdQuota[Index(kAllUserLogicalBytesTarget, 0)] * mLayoutSizeFactor;
+
+  if (mMapIdQuota[Index(kAllGroupBytesTarget, 0)] == 0 &&mMapIdQuota[Index(kAllGroupLogicalBytesTarget, 0)] > 0)
+    mMapIdQuota[Index(kAllGroupBytesTarget, 0)] = mMapIdQuota[Index(kAllGroupLogicalBytesTarget, 0)] * mLayoutSizeFactor;
 }
 
 //------------------------------------------------------------------------------
@@ -476,10 +490,10 @@ SpaceQuota::Refresh(time_t age)
   }
 
   mLastRefresh = now;
-  AccountNsToSpace();
   UpdateLogicalSizeFactor();
-  UpdateIsSums();
   UpdateTargetSums();
+  AccountNsToSpace();
+  UpdateIsSums();
 }
 
 
