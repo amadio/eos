@@ -312,23 +312,31 @@ SpaceQuota::UpdateTargetSums()
   mMapIdQuota[Index(kAllUserLogicalBytesTarget, 0)] = 0;
   mMapIdQuota[Index(kAllGroupLogicalBytesTarget, 0)] = 0;
 
-  for (auto it = mMapIdQuota.begin(); it != mMapIdQuota.end(); it++) {
-    if ((UnIndex(it->first) == kUserBytesTarget)) {
-      AddQuota(kAllUserBytesTarget, 0, it->second);
-      AddQuota(kAllUserLogicalBytesTarget, 0, it->second / mLayoutSizeFactor);
-    }
+  for (const auto& [tag, value] : mMapIdQuota) {
+    switch(UnIndex(tag)) {
+    case kUserBytesTarget:
+      AddQuota(kAllUserBytesTarget, 0, value);
+      break;
 
-    if ((UnIndex(it->first) == kUserFilesTarget)) {
-      AddQuota(kAllUserFilesTarget, 0, it->second);
-    }
+    case kUserLogicalBytesTarget:
+      AddQuota(kAllUserLogicalBytesTarget, 0, value);
+      break;
 
-    if ((UnIndex(it->first) == kGroupBytesTarget)) {
-      AddQuota(kAllGroupBytesTarget, 0, it->second);
-      AddQuota(kAllGroupLogicalBytesTarget, 0, it->second / mLayoutSizeFactor);
-    }
+    case kUserFilesTarget:
+      AddQuota(kAllUserFilesTarget, 0, value);
+      break;
 
-    if ((UnIndex(it->first) == kGroupFilesTarget)) {
-      AddQuota(kAllGroupFilesTarget, 0, it->second);
+    case kGroupBytesTarget:
+      AddQuota(kAllGroupBytesTarget, 0, value);
+      break;
+
+    case kGroupLogicalBytesTarget:
+      AddQuota(kAllGroupLogicalBytesTarget, 0, value);
+      break;
+
+    case kGroupFilesTarget:
+      AddQuota(kAllGroupFilesTarget, 0, value);
+      break;
     }
   }
 }
@@ -417,10 +425,6 @@ SpaceQuota::UpdateFromQuotaNode(uid_t uid, gid_t gid, bool upd_proj_quota)
     mMapIdQuota[Index(kUserBytesIs, Quota::gProjectId)] = 0;
     mMapIdQuota[Index(kUserLogicalBytesIs, Quota::gProjectId)] = 0;
     mMapIdQuota[Index(kUserFilesIs, Quota::gProjectId)] = 0;
-    mMapIdQuota[Index(kUserLogicalBytesTarget,
-                      uid)] = mMapIdQuota[Index(kUserBytesTarget, uid)] / mLayoutSizeFactor;
-    mMapIdQuota[Index(kGroupLogicalBytesTarget,
-                      gid)] = mMapIdQuota[Index(kGroupBytesTarget, gid)] / mLayoutSizeFactor;
 
     if (upd_proj_quota) {
       // Recalculate the project quota only every 5 seconds to boost perf.
@@ -442,18 +446,13 @@ SpaceQuota::UpdateFromQuotaNode(uid_t uid, gid_t gid, bool upd_proj_quota)
         mMapIdQuota[Index(kGroupBytesIs, Quota::gProjectId)] = 0;
         mMapIdQuota[Index(kGroupFilesIs, Quota::gProjectId)] = 0;
         mMapIdQuota[Index(kGroupLogicalBytesIs, Quota::gProjectId)] = 0;
-        // update logical target
-        mMapIdQuota[Index(kGroupLogicalBytesTarget,
-                          Quota::gProjectId)] = mMapIdQuota[Index(kGroupBytesTarget,
-                                                Quota::gProjectId)] / mLayoutSizeFactor;
+
         // Loop over users and fill project quota
         auto uids = mQuotaNode->getUids();
 
         for (auto itu = uids.begin(); itu != uids.end(); ++itu) {
-          AddQuota(kGroupBytesIs, Quota::gProjectId,
-                   mQuotaNode->getPhysicalSpaceByUser(*itu));
-          AddQuota(kGroupLogicalBytesIs, Quota::gProjectId,
-                   mQuotaNode->getUsedSpaceByUser(*itu));
+          AddQuota(kGroupBytesIs, Quota::gProjectId, mQuotaNode->getPhysicalSpaceByUser(*itu));
+          AddQuota(kGroupLogicalBytesIs, Quota::gProjectId, mQuotaNode->getUsedSpaceByUser(*itu));
           AddQuota(kGroupFilesIs, Quota::gProjectId, mQuotaNode->getNumFilesByUser(*itu));
         }
       }
