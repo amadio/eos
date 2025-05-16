@@ -941,10 +941,10 @@ SpaceQuota::CheckWriteQuota(uid_t uid, gid_t gid, long long desired_vol,
 {
   bool hasquota = false;
   // Update info from the ns quota node - user, group and project quotas
-  UpdateFromQuotaNode(uid, gid, GetQuota(kGroupBytesTarget, Quota::gProjectId)
+  UpdateFromQuotaNode(uid, gid, GetQuota(kGroupLogicalBytesTarget, Quota::gProjectId)
                       ? true : false);
   eos_info("uid=%d gid=%d size=%llu quota=%llu", uid, gid, desired_vol,
-           GetQuota(kUserBytesTarget, uid));
+           GetQuota(kUserLogicalBytesTarget, uid));
   bool userquota = false;
   bool groupquota = false;
   bool projectquota = false;
@@ -956,12 +956,12 @@ SpaceQuota::CheckWriteQuota(uid_t uid, gid_t gid, long long desired_vol,
   bool groupvolumequota = false;
   bool groupinodequota = false;
 
-  if (GetQuota(kUserBytesTarget, uid) > 0) {
+  if (GetQuota(kUserLogicalBytesTarget, uid) > 0) {
     userquota = true;
     uservolumequota = true;
   }
 
-  if (GetQuota(kGroupBytesTarget, gid) > 0) {
+  if (GetQuota(kGroupLogicalBytesTarget, gid) > 0) {
     groupquota = true;
     groupvolumequota = true;
   }
@@ -977,7 +977,7 @@ SpaceQuota::CheckWriteQuota(uid_t uid, gid_t gid, long long desired_vol,
   }
 
   if (uservolumequota) {
-    if ((GetQuota(kUserBytesTarget, uid) - GetQuota(kUserBytesIs,
+    if ((GetQuota(kUserLogicalBytesTarget, uid) - GetQuota(kUserLogicalBytesIs,
          uid)) > (long long)desired_vol) {
       hasuserquota = true;
     } else {
@@ -999,7 +999,7 @@ SpaceQuota::CheckWriteQuota(uid_t uid, gid_t gid, long long desired_vol,
   }
 
   if (groupvolumequota) {
-    if ((GetQuota(kGroupBytesTarget, gid) - GetQuota(kGroupBytesIs,
+    if ((GetQuota(kGroupLogicalBytesTarget, gid) - GetQuota(kGroupLogicalBytesIs,
          gid)) > desired_vol) {
       hasgroupquota = true;
     } else {
@@ -1018,8 +1018,8 @@ SpaceQuota::CheckWriteQuota(uid_t uid, gid_t gid, long long desired_vol,
     }
   }
 
-  if (((GetQuota(kGroupBytesTarget, Quota::gProjectId) -
-        GetQuota(kGroupBytesIs, Quota::gProjectId)) > desired_vol)) {
+  if (((GetQuota(kGroupLogicalBytesTarget, Quota::gProjectId) -
+        GetQuota(kGroupLogicalBytesIs, Quota::gProjectId)) > desired_vol)) {
     hasprojectquota = true;
 
     if ((GetQuota(kGroupFilesTarget, Quota::gProjectId)) &&
@@ -1999,7 +1999,7 @@ Quota::FilePlacement(Scheduler::PlacementArguments* args)
       bool has_quota = false;
       long long desired_vol = 1ll * nfilesystems * args->bookingsize;
       has_quota = squota->CheckWriteQuota(args->vid->uid, args->vid->gid,
-                                          desired_vol, 1);
+                                          args->bookingsize, 1);
 
       if (!has_quota) {
         eos_static_debug("uid=%u gid=%u grouptag=%s place filesystems=%u "
