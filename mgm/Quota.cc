@@ -1081,7 +1081,7 @@ SpaceQuota::AccountNsToSpace()
       ResetQuota(kUserLogicalBytesIs, *itu);
       AddQuota(kUserLogicalBytesIs, *itu, mQuotaNode->getUsedSpaceByUser(*itu));
 
-      if (mMapIdQuota[Index(kGroupBytesTarget, Quota::gProjectId)] > 0) {
+      if (mMapIdQuota[Index(kGroupLogicalBytesTarget, Quota::gProjectId)] > 0) {
         // Only account in project quota nodes
         AddQuota(kGroupBytesIs, Quota::gProjectId,
                  mQuotaNode->getPhysicalSpaceByUser(*itu));
