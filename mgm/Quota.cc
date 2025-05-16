@@ -497,7 +497,7 @@ SpaceQuota::PrintOut(XrdOucString& output, long long int uid_sel,
     XrdSysMutexHelper scope_lock(mMutex);
 
     // For project space we just print the user/group entry gProjectId
-    if (mMapIdQuota[Index(kGroupBytesTarget, Quota::gProjectId)] > 0) {
+    if (mMapIdQuota[Index(kGroupLogicalBytesTarget, Quota::gProjectId)] > 0) {
       gid_sel = Quota::gProjectId;
     }
 
