@@ -399,7 +399,7 @@ static uint32_t GetNumOfKworkerProcs()
 
   while (struct pids_stack* stack = procps_pids_get(info,
                                     PIDS_FETCH_TASKS_ONLY)) {
-    char* cmd = PIDS_VAL(0, str, stack, info);
+    char* cmd = PIDS_VAL(0, str, stack);
 
     if (strstr(cmd, "kworker") == cmd) {
       ++count;
